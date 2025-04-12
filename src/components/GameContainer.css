@@ -1,0 +1,1423 @@
+.game-container {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+.game-header {
+  margin-bottom: 20px;
+}
+
+.resource-bar {
+  display: flex;
+  align-items: center;
+  background-color: #1a1c22;
+  padding: 12px 15px;
+  border-radius: 5px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: flex-start;
+}
+
+.resource {
+  display: flex;
+  align-items: center;
+  color: #b0b0b0;
+  font-weight: normal;
+  min-width: max-content;
+  gap: 5px;
+  flex-grow: 0;
+}
+
+.resource div {
+  font-size: 0.9rem;
+}
+
+.resource span {
+  color: #61dafb;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.game-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-gap: 20px;
+}
+
+.left-column, .right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.character-card {
+  background-color: #1a1c22;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.mission-card {
+  background-color: #1a1c22;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.current-mission {
+  grid-column: 1 / span 2;
+  background-color: #1a1c22;
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #282c34;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.progress {
+  height: 100%;
+  background-color: #61dafb;
+  transition: width 0.3s ease;
+}
+
+button {
+  background-color: #61dafb;
+  border: none;
+  color: #282c34;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #4fa8c9;
+}
+
+button:disabled {
+  background-color: #2c4252;
+  color: #6c7983;
+  cursor: not-allowed;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 24px;
+}
+
+/* Character Selection Screen Styles */
+.character-select-container {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.character-select-container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #61dafb;
+}
+
+.character-select-container p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.character-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.character-select-card {
+  background-color: #1a1c22;
+  border-radius: 8px;
+  padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.character-select-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.character-select-card h2 {
+  color: #61dafb;
+  margin-bottom: 15px;
+}
+
+.character-image {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.placeholder-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.character-select-card p {
+  text-align: left;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.character-background {
+  flex-grow: 1;
+  font-style: italic;
+  color: #cccccc;
+  font-size: 0.85rem !important;
+  margin-bottom: 15px !important;
+  line-height: 1.4;
+}
+
+.character-select-card button {
+  width: 100%;
+  background-color: #61dafb;
+  color: #282c34;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: auto;
+}
+
+.character-select-card button:hover {
+  background-color: #4fa8c9;
+}
+
+/* Character Tabs */
+.character-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-bottom: 10px;
+}
+
+.character-tab {
+  position: relative;
+  padding: 10px 15px;
+  border-radius: 5px 5px 0 0;
+  background-color: #282c34;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: background-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+}
+
+.character-tab.active {
+  background-color: #32353e;
+  border-bottom: 3px solid #61dafb;
+}
+
+.character-tab.on-mission {
+  background-color: #2c3e50;
+  border: 1px dashed #61dafb;
+}
+
+.character-tab-name {
+  font-weight: bold;
+  margin-bottom: 2px;
+  color: #f0f0f0;
+}
+
+.character-tab-specialty {
+  font-size: 0.8rem;
+  color: #b0b0b0;
+  margin-bottom: 3px;
+}
+
+.training-indicator {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 0.9rem;
+  animation: rotate 2s linear infinite;
+}
+
+.mission-indicator {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 0.9rem;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Character Detail */
+.character-detail {
+  background-color: #1a1c22;
+  padding: 12px;
+  border-radius: 5px;
+}
+
+.character-header {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.character-portrait {
+  margin-right: 12px;
+}
+
+.character-portrait .placeholder-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.character-info {
+  flex-grow: 1;
+}
+
+.character-info h3 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #61dafb;
+  font-size: 1.1em;
+}
+
+.character-info p {
+  margin: 3px 0;
+  font-size: 0.85em;
+}
+
+.character-stats {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.stat {
+  background-color: #282c34;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.stat span {
+  font-size: 0.75em;
+  display: block;
+  color: #61dafb;
+  margin-bottom: 2px;
+}
+
+/* Skill Training Panel */
+.skill-training-panel {
+  margin-top: 15px;
+  border-top: 1px solid #2c3747;
+  padding-top: 12px;
+}
+
+.skill-training-panel h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #61dafb;
+  font-size: 1em;
+}
+
+.current-training {
+  background-color: #2c3747;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.current-training p {
+  margin: 0 0 8px 0;
+  font-size: 0.85em;
+}
+
+.skills-list {
+  margin-top: 12px;
+}
+
+.skills-list h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: #f0f0f0;
+}
+
+.skill-item {
+  background-color: #282c34;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.skill-header h5 {
+  margin: 0;
+  font-size: 0.9em;
+  color: #61dafb;
+}
+
+.skill-level {
+  font-size: 0.8em;
+  background-color: #1a1c22;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.skill-item p {
+  margin: 0 0 8px 0;
+  font-size: 0.8em;
+  color: #cccccc;
+}
+
+.skill-progress {
+  margin-bottom: 8px;
+}
+
+.skill-progress .progress-bar {
+  height: 12px;
+  margin: 5px 0;
+}
+
+.skill-progress span {
+  font-size: 0.7em;
+  color: #f0f0f0;
+  margin-left: 3px;
+}
+
+.skill-bonuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.skill-bonuses span {
+  font-size: 0.7em;
+  background-color: #1a1c22;
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: #61dafb;
+}
+
+.skill-item button {
+  width: 100%;
+  padding: 6px 12px;
+  margin-top: 5px;
+  font-size: 0.85em;
+}
+
+/* Character Shop */
+.character-shop {
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.character-shop h2 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.shop-character-card {
+  background-color: white;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.shop-character-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.shop-character-card h3 {
+  margin-top: 0;
+  color: #444;
+}
+
+.character-price {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.character-price span {
+  background-color: #1a1c22;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  color: #b0b0b0;
+}
+
+.shop-character-card button {
+  width: 100%;
+  padding: 8px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.shop-character-card button:hover:not(:disabled) {
+  background-color: #3a80d2;
+}
+
+.shop-character-card button:disabled {
+  background-color: #3a4049;
+  color: #6c7983;
+  cursor: not-allowed;
+}
+
+/* Add these styles for the tab navigation */
+.tab-navigation {
+  display: flex;
+  margin-top: 15px;
+  background-color: #282c34;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tab-navigation button {
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  color: #f0f0f0;
+  padding: 12px 15px;
+  margin: 0;
+  border-radius: 0;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-navigation button:hover {
+  background-color: #32353e;
+}
+
+.tab-navigation button.active {
+  background-color: #2c3747;
+  border-bottom: 2px solid #61dafb;
+  font-weight: bold;
+}
+
+/* Shop Tab Styles */
+.shop-tab {
+  background-color: #1a1c22;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.shop-tab h2 {
+  color: #61dafb;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.shop-tab p {
+  color: #f0f0f0;
+  margin-bottom: 20px;
+}
+
+.shop-characters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 20px;
+}
+
+.shop-character-card {
+  background-color: #282c34;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+}
+
+.shop-character-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.shop-character-header {
+  padding: 15px;
+  background-color: #32353e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shop-character-header h3 {
+  margin: 0;
+  color: #61dafb;
+  font-size: 1.2rem;
+}
+
+.shop-character-header .character-image {
+  width: 50px;
+  height: 50px;
+}
+
+.shop-character-header .placeholder-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.shop-character-details {
+  padding: 15px;
+}
+
+.shop-character-details p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.character-stats-small {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.stat-small {
+  background-color: #1a1c22;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 40px;
+}
+
+.stat-small span {
+  font-size: 0.7rem;
+  color: #61dafb;
+}
+
+.character-background-small {
+  font-style: italic;
+  font-size: 0.8rem;
+  color: #b0b0b0;
+  margin: 10px 0;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.purchase-button {
+  background-color: #3a80d2;
+  color: white;
+  width: 100%;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.purchase-button:hover:not(:disabled) {
+  background-color: #4a90e2;
+}
+
+.purchase-button:disabled {
+  background-color: #3a4049;
+  color: #6c7983;
+  cursor: not-allowed;
+}
+
+/* Missions Tab Styles */
+.missions-tab {
+  margin-top: 20px;
+}
+
+.missions-overview {
+  background-color: #1a1c22;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.missions-overview h2 {
+  color: #61dafb;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.missions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.mission-card-detailed {
+  background-color: #282c34;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.mission-card-detailed h3 {
+  color: #61dafb;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.mission-details {
+  margin: 15px 0;
+}
+
+.mission-details p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.mission-required-strengths {
+  margin-top: 10px;
+}
+
+.strengths-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.strength-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  background-color: #3e4250;
+  color: #b0b0b0;
+  font-size: 0.8rem;
+}
+
+.strength-tag.fulfilled {
+  background-color: #3a5a40;
+  color: #a3e635;
+}
+
+.mission-rewards {
+  background-color: #1a1c22;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 15px 0;
+}
+
+.mission-rewards h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #f0f0f0;
+  font-size: 0.9rem;
+}
+
+.rewards-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.reward {
+  font-size: 0.85rem;
+}
+
+.reward span {
+  color: #61dafb;
+  margin-right: 5px;
+}
+
+.start-mission-button {
+  width: 100%;
+  background-color: #61dafb;
+  color: #1a1c22;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.start-mission-button:hover:not(:disabled) {
+  background-color: #4fa8c9;
+}
+
+.start-mission-button:disabled {
+  background-color: #3a4049;
+  color: #6c7983;
+  cursor: not-allowed;
+}
+
+.current-mission-detailed {
+  background-color: #1a1c22;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.current-mission-detailed h2 {
+  color: #61dafb;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.active-mission-team {
+  margin-top: 20px;
+}
+
+.active-mission-team h3 {
+  color: #f0f0f0;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.mission-team-members {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.team-member-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+}
+
+.member-portrait {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-bottom: 5px;
+}
+
+.team-member-icon span {
+  font-size: 0.8rem;
+  color: #f0f0f0;
+  text-align: center;
+}
+
+/* Additional styles specific to shop tab */
+.shop-tab .character-price span {
+  background-color: #1a1c22;
+  color: #b0b0b0;
+  border: 1px solid #32353e;
+}
+
+/* Add these styles for the saved game UI elements */
+.saved-game-banner {
+  background-color: #1a1c22;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 600px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 1px solid #3a80d2;
+}
+
+.saved-game-banner h2 {
+  color: #61dafb;
+  margin-top: 0;
+}
+
+.saved-game-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.continue-button {
+  background-color: #3a80d2;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.continue-button:hover {
+  background-color: #4a90e2;
+}
+
+.new-game-button {
+  background-color: #282c34;
+  color: white;
+  border: 1px solid #61dafb;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.new-game-button:hover {
+  background-color: #32353e;
+}
+
+.game-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.save-button {
+  background-color: #3a80d2;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0;
+}
+
+.save-button:hover {
+  background-color: #4a90e2;
+}
+
+.reset-button {
+  background-color: #3a3e47;
+  color: #f0f0f0;
+  border: 1px solid #f54242;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0;
+}
+
+.reset-button:hover {
+  background-color: #f54242;
+  color: white;
+}
+
+.save-indicator {
+  background-color: #1a7f3a;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  animation: fadeIn 0.3s ease-in-out;
+  position: relative;
+}
+
+.auto-save-info {
+  font-size: 0.75rem;
+  color: #b0b0b0;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Team Overview */
+.team-overview {
+  background-color: #1a1c22;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.team-overview h2 {
+  color: #61dafb;
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #32353e;
+  padding-bottom: 10px;
+}
+
+.team-overview h3 {
+  color: #f0f0f0;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.team-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.team-stat, .game-stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #282c34;
+  border-radius: 6px;
+}
+
+.team-stat .label, .game-stat .label {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+}
+
+.team-stat .value, .game-stat .value {
+  color: #61dafb;
+  font-weight: bold;
+}
+
+.current-mission-summary {
+  background-color: #282c34;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.current-mission-summary .progress-bar {
+  height: 12px;
+  background-color: #32353e;
+  border-radius: 6px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.current-mission-summary .progress {
+  height: 100%;
+  background-color: #61dafb;
+  border-radius: 6px;
+}
+
+.view-details-button {
+  background-color: #3a80d2;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.view-details-button:hover {
+  background-color: #4a90e2;
+}
+
+.game-stats {
+  background-color: #282c34;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.stat-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Character Unlock Popup */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.character-unlock-popup {
+  background-color: #1a1c22;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.4s ease-out;
+}
+
+.popup-header {
+  background-color: #282c34;
+  padding: 15px 20px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #61dafb;
+}
+
+.popup-header h2 {
+  color: #61dafb;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #f0f0f0;
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.popup-content {
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.unlock-character-portrait {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+}
+
+.unlock-character-portrait .placeholder-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  border: 2px solid #61dafb;
+}
+
+.unlock-character-info {
+  flex-grow: 1;
+}
+
+.unlock-character-info h3 {
+  color: #f0f0f0;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+}
+
+.unlock-character-info p {
+  margin: 5px 0;
+  color: #b0b0b0;
+}
+
+.unlock-character-stats {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.unlock-character-background {
+  font-style: italic;
+  margin-top: 15px;
+  border-left: 3px solid #3a80d2;
+  padding-left: 10px;
+}
+
+.popup-actions {
+  padding: 15px 20px;
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  background-color: #232730;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.add-to-team-button {
+  background-color: #3a80d2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-to-team-button:hover {
+  background-color: #4a90e2;
+}
+
+.view-later-button {
+  background-color: #282c34;
+  color: #f0f0f0;
+  border: 1px solid #3a80d2;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-later-button:hover {
+  background-color: #32353e;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mission selection popup styles */
+.mission-selection-popup {
+  background-color: #282c34;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  z-index: 2000;
+  animation: slideUp 0.3s ease-out forwards;
+  color: #f0f0f0;
+}
+
+.mission-character-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.mission-character-option {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #32353e;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: calc(50% - 10px);
+}
+
+.mission-character-option:hover {
+  background-color: #3e4250;
+}
+
+.mission-character-option.selected {
+  border-color: #61dafb;
+  background-color: rgba(97, 218, 251, 0.1);
+}
+
+.mission-character-option.strength-match {
+  position: relative;
+  border-left: 4px solid #4caf50;
+}
+
+.mission-character-option.strength-match::before {
+  content: "✓";
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4caf50;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.mission-character-option .character-details p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #b0b0b0;
+}
+
+.mission-selection-note {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #32353e;
+  border-left: 4px solid #61dafb;
+  font-size: 0.9rem;
+}
+
+.select-characters-button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.select-characters-button:hover:not(:disabled) {
+  background-color: #0c7cd5;
+}
+
+.select-characters-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Cancel button */
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-left: 10px;
+  transition: background-color 0.2s;
+}
+
+.cancel-button:hover {
+  background-color: #d32f2f;
+}
+
+/* Ensure that popup-actions has space between buttons */
+.popup-actions {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  gap: 10px;
+}
+
+.mission-character-option .character-portrait {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.mission-character-option .character-details {
+  flex-grow: 1;
+}
+
+.mission-character-option .character-details h4 {
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+  color: #f0f0f0;
+}
+
+.character-selection-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-size: 1.2rem;
+  color: #61dafb;
+  font-weight: bold;
+}
+
+.mission-training-notice {
+  background-color: #2c3e50;
+  border: 1px dashed #61dafb;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 15px;
+}
+
+.mission-training-notice p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #f0f0f0;
+}
+
+.skill-item button.disabled {
+  background-color: #2c3e50;
+  color: #6c7983;
+  cursor: not-allowed;
+  border: 1px dashed #61dafb;
+} 
