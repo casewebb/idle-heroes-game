@@ -8,22 +8,33 @@ const AUTO_SAVE_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
 export class GameEngine {
   private gameState: GameState;
   private lastTimestamp: number;
-  private idleMultiplier: number = 20.0;
+  private idleMultiplier: number = 1.0;
   private autoSaveTimer: number | null = null;
   private lastSaveTime: number = 0;
   private lastUnlockedCharacter: Character | null = null;
   
   constructor(startingCharacterId?: string) {
-    // Try to load saved game state
-    const savedState = this.loadGameState();
+    console.log("GameEngine constructor called with:", startingCharacterId);
     
-    if (savedState) {
-      this.gameState = savedState;
-      console.log('Loaded saved game state');
-    } else {
-      // Initialize new game state if nothing saved
+    // If a specific starting character ID is provided, always create a new game
+    if (startingCharacterId) {
+      console.log("Creating new game with specified character:", startingCharacterId);
       this.gameState = this.initializeGameState(startingCharacterId);
-      console.log('Started new game');
+      console.log("Created new game with character:", 
+        this.gameState.activeCharacters[0].name, 
+        this.gameState.activeCharacters[0].id);
+    } else {
+      // Only try to load saved game if no specific character was requested
+      const savedState = this.loadGameState();
+      
+      if (savedState) {
+        this.gameState = savedState;
+        console.log('Loaded saved game state');
+      } else {
+        // Initialize new game state with default character if nothing saved
+        this.gameState = this.initializeGameState();
+        console.log('Started new game with default character');
+      }
     }
     
     this.lastTimestamp = Date.now();
@@ -71,10 +82,27 @@ export class GameEngine {
   }
   
   private initializeGameState(startingCharacterId?: string): GameState {
-    // Start with selected character or default to first character
-    const startingCharacter = startingCharacterId 
-      ? characterData.find(char => char.id === startingCharacterId) || characterData[0]
-      : characterData[0];
+    console.log("initializeGameState called with:", startingCharacterId);
+    
+    // If a specific character ID is provided, use that character
+    // Otherwise, pick a random character from the available options
+    let startingCharacter;
+    
+    if (startingCharacterId) {
+      // Try to find the requested character, fall back to random if not found
+      startingCharacter = characterData.find(char => char.id === startingCharacterId);
+      if (!startingCharacter) {
+        console.log("Requested character not found, picking a random one instead");
+        const randomIndex = Math.floor(Math.random() * characterData.length);
+        startingCharacter = characterData[randomIndex];
+      }
+    } else {
+      // No character specified, choose a random one
+      const randomIndex = Math.floor(Math.random() * characterData.length);
+      startingCharacter = characterData[randomIndex];
+    }
+    
+    console.log("Selected starting character:", startingCharacter.name, startingCharacter.id);
     
     return {
       characters: characterData,
@@ -86,7 +114,7 @@ export class GameEngine {
         adaptationTokens: 0
       },
       missions: [],
-      currentMission: null,
+      currentMissions: [],
       unlockedCharacters: [startingCharacter.id],
       gameTime: 0,
       teamSynergy: 0
@@ -95,16 +123,31 @@ export class GameEngine {
   
   public update(): void {
     const currentTime = Date.now();
-    const deltaTime = (currentTime - this.lastTimestamp) / 1000; // seconds
+    let deltaTime = (currentTime - this.lastTimestamp) / 1000; // seconds
     this.lastTimestamp = currentTime;
     
+    // Ensure deltaTime is positive and within reasonable bounds
+    if (deltaTime < 0) {
+      console.warn(`Negative deltaTime detected: ${deltaTime}. Setting to 0.1`);
+      deltaTime = 0.1; // Use a small positive value instead
+    } else if (deltaTime > 60) {
+      // Cap very large time deltas (e.g., after computer sleep)
+      console.warn(`Very large deltaTime detected: ${deltaTime}. Capping at 60 seconds.`);
+      deltaTime = 60;
+    }
+    
     this.gameState.gameTime += deltaTime;
+    
+    // Ensure currentMissions is always defined to avoid errors
+    if (!this.gameState.currentMissions) {
+      this.gameState.currentMissions = [];
+    }
     
     // Update idle progression
     this.processIdleGains(deltaTime);
     
-    // Process active mission if there is one
-    if (this.gameState.currentMission) {
+    // Process active missions if there are any
+    if (this.gameState.currentMissions.length > 0) {
       this.processMission(deltaTime);
     }
     
@@ -138,9 +181,20 @@ export class GameEngine {
   private loadGameState(): GameState | null {
     try {
       const savedStateString = localStorage.getItem(GAME_STATE_KEY);
-      if (!savedStateString) return null;
+      if (!savedStateString) {
+        console.log("No saved game state found in localStorage");
+        return null;
+      }
       
+      console.log("Found saved game state in localStorage");
       const savedState = JSON.parse(savedStateString) as GameState;
+      
+      // Add debugging to see active character
+      if (savedState.activeCharacters && savedState.activeCharacters.length > 0) {
+        console.log("Loaded game has active character:", 
+          savedState.activeCharacters[0].name, 
+          savedState.activeCharacters[0].id);
+      }
       
       // Restore function references which don't survive JSON serialization
       this.restoreFunctionReferences(savedState);
@@ -230,6 +284,22 @@ export class GameEngine {
       }
     }
     
+    // Handle migration from old format (currentMission) to new format (currentMissions array)
+    if (!state.currentMissions) {
+      console.log('Migrating from old save format (currentMission) to new format (currentMissions array)');
+      state.currentMissions = [];
+      
+      // @ts-ignore - Access the old property to migrate the data
+      if (state.currentMission) {
+        // @ts-ignore - Access the old property to migrate the data
+        state.currentMissions.push(state.currentMission);
+        console.log('Migrated current mission to currentMissions array');
+      }
+      
+      // @ts-ignore - Delete the old property
+      delete state.currentMission;
+    }
+    
     // Run a debug check of skill training settings
     this.debugSkillTraining(state);
   }
@@ -267,9 +337,14 @@ export class GameEngine {
   
   // Reset game state (for debugging or user requested reset)
   public resetGame(startingCharacterId?: string): void {
+    console.log("Resetting game with character ID:", startingCharacterId);
+    
+    // Clear localStorage to ensure no saved game is loaded
+    localStorage.removeItem(GAME_STATE_KEY);
+    
     this.gameState = this.initializeGameState(startingCharacterId);
     this.saveGameState();
-    console.log('Game state reset');
+    console.log('Game state reset and saved');
   }
   
   private processIdleGains(deltaTime: number): void {
@@ -303,24 +378,40 @@ export class GameEngine {
   }
   
   private processMission(deltaTime: number): void {
-    if (!this.gameState.currentMission) return;
+    // Ensure currentMissions is defined to avoid errors
+    if (!this.gameState.currentMissions) {
+      this.gameState.currentMissions = [];
+      return;
+    }
     
-    // Progress the mission based on assigned characters and time
-    const mission = this.gameState.currentMission;
-    const progressRate = this.calculateMissionProgressRate();
+    if (this.gameState.currentMissions.length === 0) return;
     
-    mission.completionProgress += progressRate * deltaTime;
+    // Array to track missions that need to be completed
+    const completedMissionIndices: number[] = [];
     
-    // Check if mission is complete
-    if (mission.completionProgress >= 100) {
-      this.completeMission();
+    // Process each mission in the array
+    this.gameState.currentMissions.forEach((mission, index) => {
+      // Progress the mission based on assigned characters and time
+      const progressRate = this.calculateMissionProgressRate(mission);
+      
+      mission.completionProgress += progressRate * deltaTime;
+      
+      // Check if mission is complete
+      if (mission.completionProgress >= 100) {
+        completedMissionIndices.push(index);
+      }
+    });
+    
+    // Complete missions in reverse order to avoid index shifting issues
+    for (let i = completedMissionIndices.length - 1; i >= 0; i--) {
+      const missionIndex = completedMissionIndices[i];
+      this.completeMission(missionIndex);
     }
   }
   
-  private calculateMissionProgressRate(): number {
-    if (!this.gameState.currentMission) return 0;
+  private calculateMissionProgressRate(mission: Mission): number {
+    if (!mission) return 0;
     
-    const mission = this.gameState.currentMission;
     let baseRate = 1.0;
     
     // Check if we have characters with the required strengths
@@ -369,24 +460,30 @@ export class GameEngine {
     }, 0);
   }
   
-  private completeMission(): void {
-    if (!this.gameState.currentMission) return;
+  private completeMission(index: number): void {
+    // Ensure currentMissions is defined to avoid errors
+    if (!this.gameState.currentMissions) {
+      this.gameState.currentMissions = [];
+      return;
+    }
+    
+    if (this.gameState.currentMissions.length === 0) return;
     
     // Award mission rewards
-    const rewards = this.gameState.currentMission.rewards;
+    const rewards = this.gameState.currentMissions[index].rewards;
     this.gameState.resources.gold += rewards.gold;
     this.gameState.resources.dataPoints += rewards.dataPoints;
     this.gameState.resources.teamMorale += rewards.teamMorale;
     this.gameState.resources.adaptationTokens += rewards.adaptationTokens;
     
     // Award XP to characters assigned to the mission
-    for (const characterId of this.gameState.currentMission.assignedCharacters) {
-      const xpGain = 10 * this.gameState.currentMission.difficulty;
+    for (const characterId of this.gameState.currentMissions[index].assignedCharacters) {
+      const xpGain = 10 * this.gameState.currentMissions[index].difficulty;
       this.awardExperience(characterId, xpGain);
     }
     
     // Chance to unlock a new character based on mission difficulty
-    const missionDifficulty = this.gameState.currentMission.difficulty;
+    const missionDifficulty = this.gameState.currentMissions[index].difficulty;
     const unlockChance = missionDifficulty * 0.1; // 10% chance per difficulty point
     
     if (Math.random() < unlockChance) {
@@ -394,13 +491,13 @@ export class GameEngine {
     }
     
     // Get the assigned characters before clearing the mission
-    const assignedCharacters = [...this.gameState.currentMission.assignedCharacters];
+    const assignedCharacters = [...this.gameState.currentMissions[index].assignedCharacters];
     
     // Generate new mission to replace completed one
     this.generateNewMission();
     
     // Clear current mission and allow characters to resume training
-    this.gameState.currentMission = null;
+    this.gameState.currentMissions.splice(index, 1);
     
     // Resume training for characters that were on the mission
     this.resumeTrainingForCharacters(assignedCharacters);
@@ -619,10 +716,29 @@ export class GameEngine {
   }
   
   public awardExperience(characterId: string, amount: number): void {
-    const character = this.gameState.characters.find(c => c.id === characterId);
-    if (!character) return;
+    // Ensure amount is positive
+    if (amount <= 0) {
+      console.warn(`Attempted to award non-positive experience (${amount}) to character ${characterId}`);
+      return;
+    }
     
+    // Find the character in both arrays
+    const character = this.gameState.characters.find(c => c.id === characterId);
+    const activeCharacter = this.gameState.activeCharacters.find(c => c.id === characterId);
+    
+    if (!character) {
+      console.error(`Character ${characterId} not found in characters array`);
+      return;
+    }
+    
+    // Add experience to the character
     character.experience += amount;
+    console.log(`Awarded ${amount} XP to ${character.name} (${characterId})`);
+    
+    // If character is also in active characters, update that reference too
+    if (activeCharacter) {
+      activeCharacter.experience = character.experience;
+    }
     
     // Check for level up
     const xpNeeded = this.calculateXpForNextLevel(character.level);
@@ -630,6 +746,15 @@ export class GameEngine {
       character.experience -= xpNeeded;
       character.level += 1;
       character.skillPoints += 1;
+      
+      // Also update the active character reference
+      if (activeCharacter) {
+        activeCharacter.experience = character.experience;
+        activeCharacter.level = character.level;
+        activeCharacter.skillPoints = character.skillPoints;
+      }
+      
+      console.log(`${character.name} leveled up to level ${character.level}!`);
       
       // Unlock new abilities based on level
       character.abilities.forEach(ability => {
@@ -679,6 +804,16 @@ export class GameEngine {
       return false;
     }
     
+    // Check if any selected characters are already on a mission
+    const charactersOnMissions = validCharacterIds.filter(charId => 
+      this.isCharacterOnMission(charId)
+    );
+    
+    if (charactersOnMissions.length > 0) {
+      console.error("Some selected characters are already on a mission");
+      return false;
+    }
+    
     // Pause training for characters on the mission
     for (const charId of validCharacterIds) {
       // Find the character in both arrays
@@ -699,12 +834,14 @@ export class GameEngine {
       }
     }
     
-    // Create a current mission with the assigned characters
-    this.gameState.currentMission = {
+    // Create a mission with the assigned characters and add it to currentMissions
+    const missionToAdd = {
       ...mission, 
       completionProgress: 0,
       assignedCharacters: validCharacterIds
     };
+    
+    this.gameState.currentMissions.push(missionToAdd);
     
     // Remove the mission from available missions
     this.gameState.missions = this.gameState.missions.filter(m => m.id !== missionId);
@@ -764,7 +901,15 @@ export class GameEngine {
     const character = this.gameState.characters.find(c => c.id === characterId);
     if (!character) return false;
     
+    // Add character to unlocked characters list
     this.gameState.unlockedCharacters.push(characterId);
+    
+    // Automatically add the character to active characters
+    if (!this.gameState.activeCharacters.some(c => c.id === characterId)) {
+      this.gameState.activeCharacters.push(character);
+      console.log(`Automatically added ${character.name} to the active team`);
+    }
+    
     return true;
   }
   
@@ -803,6 +948,12 @@ export class GameEngine {
   
   // New method to process skill training for all characters
   private processSkillTraining(deltaTime: number): void {
+    // Ensure deltaTime is positive to prevent negative experience gains
+    if (deltaTime <= 0) {
+      console.warn(`Invalid deltaTime: ${deltaTime}. Skipping skill training update.`);
+      return;
+    }
+    
     this.gameState.activeCharacters.forEach(activeCharacter => {
       // Skip characters that are on a mission
       if (this.isCharacterOnMission(activeCharacter.id)) {
@@ -825,8 +976,8 @@ export class GameEngine {
         const arraySkill = characterInArray.skills.find(s => s.type === characterInArray.currentlyTraining);
         
         if (activeSkill && arraySkill && activeSkill.level < activeSkill.maxLevel) {
-          // Calculate experience gain
-          const expGain = activeSkill.trainingRate * deltaTime;
+          // Calculate experience gain and ensure it's always positive
+          const expGain = Math.max(0, activeSkill.trainingRate * deltaTime);
           
           if (expGain <= 0) {
             console.warn(`No experience gained for ${activeCharacter.name}'s ${activeSkill.name} skill. Training rate: ${activeSkill.trainingRate}, deltaTime: ${deltaTime}`);
@@ -836,6 +987,10 @@ export class GameEngine {
           // Add experience to both skill references
           activeSkill.experience += expGain;
           arraySkill.experience += expGain;
+          
+          // Ensure experience is never negative
+          if (activeSkill.experience < 0) activeSkill.experience = 0;
+          if (arraySkill.experience < 0) arraySkill.experience = 0;
           
           // Check for level up using the active character reference
           if (activeSkill.experience >= activeSkill.experienceToNextLevel) {
@@ -869,6 +1024,12 @@ export class GameEngine {
       return;
     }
     
+    // Ensure amount is positive
+    if (amount <= 0) {
+      console.warn(`Attempted to add non-positive experience (${amount}) to skill ${skillType} for character ${characterId}`);
+      return;
+    }
+    
     // Find character in both arrays
     const character = this.gameState.characters.find(c => c.id === characterId);
     const activeCharacter = this.gameState.activeCharacters.find(c => c.id === characterId);
@@ -883,6 +1044,9 @@ export class GameEngine {
     
     // Add experience to the skill
     skill.experience += amount;
+    
+    // Ensure experience is never negative
+    if (skill.experience < 0) skill.experience = 0;
     
     // If character is also in active characters, update that reference too
     if (activeCharacter) {
@@ -993,8 +1157,16 @@ export class GameEngine {
   
   // Method to check if a character is currently on a mission
   public isCharacterOnMission(characterId: string): boolean {
-    if (!this.gameState.currentMission) return false;
-    return this.gameState.currentMission.assignedCharacters.includes(characterId);
+    // Ensure currentMissions is defined to avoid errors
+    if (!this.gameState.currentMissions) {
+      this.gameState.currentMissions = [];
+      return false;
+    }
+    
+    // Check if the character is assigned to any current mission
+    return this.gameState.currentMissions.some(mission => 
+      mission.assignedCharacters.includes(characterId)
+    );
   }
   
   // When a mission completes, resume training for characters
@@ -1046,8 +1218,9 @@ export class GameEngine {
     this.gameState.resources.gold -= goldCost;
     this.gameState.resources.dataPoints -= dataCost;
     
-    // Unlock the character
-    this.gameState.unlockedCharacters.push(characterId);
+    // Use unlockCharacterInternal instead of directly manipulating the array
+    // This will also automatically add the character to the active team
+    this.unlockCharacterInternal(characterId);
     
     // Check if this is the first unlocked character, generate missions if needed
     if (this.gameState.unlockedCharacters.length > 1 && this.gameState.missions.length === 0) {

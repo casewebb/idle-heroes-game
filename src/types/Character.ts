@@ -8,7 +8,8 @@ export enum CharacterClass {
   MAVERICK = "maverick",
   MEDIC = "medic",
   VERSATILE = "versatile",
-  SPEEDSTER = "speedster"
+  SPEEDSTER = "speedster",
+  WARDEN = "warden"
 }
 
 // Enum for various skill types that characters can train
@@ -35,7 +36,8 @@ export enum GameStrength {
   HIGH_GAME_MODE = "high_game_mode",
   TEAM_SUPPORT = "team_support",
   JACK_OF_ALL_TRADES = "jack_of_all_trades",
-  ADDICTION = "addiction"
+  ADDICTION = "addiction",
+  UNBREAKABLE_PATIENCE = "unbreakable_patience"
 }
 
 export interface Ability {
@@ -114,7 +116,7 @@ export interface GameState {
   activeCharacters: Character[];
   resources: Resources;
   missions: Mission[];
-  currentMission: Mission | null;
+  currentMissions: Mission[];
   unlockedCharacters: string[];
   gameTime: number;
   teamSynergy: number;

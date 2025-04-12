@@ -4,6 +4,11 @@ import { GameState, Character, Mission, SkillType, CharacterSkill } from '../typ
 import { characterData } from '../data/CharacterData';
 import './GameContainer.css';
 
+// Helper function to calculate XP required for next level
+const calculateXpForNextLevel = (currentLevel: number): number => {
+  return Math.round(100 * Math.pow(1.5, currentLevel));
+};
+
 // Skill type display names for UI
 const skillTypeNames: Record<SkillType, string> = {
   [SkillType.COMBAT]: "Combat",
@@ -111,7 +116,23 @@ enum UITab {
 
 // Check if a saved game exists
 const checkForSavedGame = (): boolean => {
-  return localStorage.getItem('idle_heroes_game_state') !== null;
+  try {
+    const savedGameData = localStorage.getItem('idle_heroes_game_state');
+    if (!savedGameData) return false;
+    
+    // Try to parse it to make sure it's valid JSON
+    const parsedData = JSON.parse(savedGameData);
+    
+    // Verify it has at least some expected properties of a GameState
+    return !!parsedData && 
+           !!parsedData.characters && 
+           !!parsedData.activeCharacters &&
+           parsedData.activeCharacters.length > 0;
+  } catch (e) {
+    // If there's any error parsing, consider there's no valid saved game
+    console.error("Error checking for saved game:", e);
+    return false;
+  }
 };
 
 const GameContainer: React.FC = () => {
@@ -130,6 +151,9 @@ const GameContainer: React.FC = () => {
   const saveIndicatorTimeoutRef = useRef<number | null>(null);
 
   const handleCharacterSelect = (characterId: string) => {
+    // Add debugging
+    console.log("Selected character with ID:", characterId);
+    
     // Initialize the game engine with the selected character
     gameEngineRef.current = new GameEngine(characterId);
     setHasSelectedCharacter(true);
@@ -145,9 +169,26 @@ const GameContainer: React.FC = () => {
     if (window.confirm('Are you sure you want to reset your game? All progress will be lost!')) {
       if (gameEngineRef.current) {
         gameEngineRef.current.resetGame();
-        window.location.reload(); // Reload the page to reset UI state
+        
+        // Clear saved game from localStorage directly
+        localStorage.removeItem('idle_heroes_game_state');
+        
+        // Update the UI state without reloading
+        setHasSelectedCharacter(false);
+        setHasSavedGame(false);
+        setGameState(null);
+        setSelectedCharacterId(null);
+        
+        console.log('Game reset complete');
       }
     }
+  };
+
+  // Add debug function to clear localStorage
+  const handleClearStorage = () => {
+    localStorage.removeItem('idle_heroes_game_state');
+    console.log("Cleared localStorage");
+    setHasSavedGame(false);
   };
 
   const handleSelectCharacterTab = (characterId: string) => {
@@ -222,6 +263,11 @@ const GameContainer: React.FC = () => {
 
   // Function to handle character selection for missions
   const handleToggleMissionCharacter = (characterId: string) => {
+    // Check if character is already on a mission
+    if (gameEngineRef.current?.isCharacterOnMission(characterId)) {
+      return; // Don't allow selecting character already on a mission
+    }
+    
     setSelectedMissionCharacters(prev => {
       if (prev.includes(characterId)) {
         return prev.filter(id => id !== characterId);
@@ -294,6 +340,12 @@ const GameContainer: React.FC = () => {
       }
     };
   }, [hasSelectedCharacter]);
+  
+  // Check for saved game data when component mounts
+  useEffect(() => {
+    // Update hasSavedGame state based on localStorage
+    setHasSavedGame(checkForSavedGame());
+  }, []);
 
   // Character selection screen
   if (!hasSelectedCharacter) {
@@ -321,9 +373,17 @@ const GameContainer: React.FC = () => {
             <h2>Select Your Starting Hero</h2>
             <p>Choose your first friend to begin your adventure!</p>
             
+            {/* Debug button */}
+            <button 
+              onClick={handleClearStorage}
+              style={{ marginBottom: "20px" }}
+            >
+              Clear Saved Data
+            </button>
+            
             <div className="character-selection">
               {characterData.map((character) => (
-                <div key={character.id} className="character-select-card" onClick={() => handleCharacterSelect(character.id)}>
+                <div key={character.id} className="character-select-card">
                   <h2>{character.name}</h2>
                   <div className="character-image">
                     {/* You can add character images here */}
@@ -332,10 +392,7 @@ const GameContainer: React.FC = () => {
                   <p><strong>Class:</strong> {formatClassName(character.characterClass)}</p>
                   <p><strong>Specialty:</strong> {formatGameStrength(character.gameStrength)}</p>
                   <p className="character-background">{character.background}</p>
-                  <button onClick={(e) => {
-                    e.stopPropagation();
-                    handleCharacterSelect(character.id);
-                  }}>
+                  <button onClick={() => handleCharacterSelect(character.id)}>
                     Select {character.name}
                   </button>
                 </div>
@@ -396,28 +453,39 @@ const GameContainer: React.FC = () => {
               </div>
               <p><strong>Select characters to send on this mission:</strong></p>
               <div className="mission-character-selection">
-                {availableCharacters.map(character => (
-                  <div 
-                    key={character.id}
-                    className={`mission-character-option 
-                      ${selectedMissionCharacters.includes(character.id) ? 'selected' : ''}
-                      ${mission.requiredStrengths.includes(character.gameStrength) ? 'strength-match' : ''}
-                    `}
-                    onClick={() => handleToggleMissionCharacter(character.id)}
-                  >
-                    <div className="character-portrait">
-                      <div className="placeholder-image" style={{ backgroundColor: getColorForCharacter(character.characterClass) }}></div>
+                {availableCharacters.map(character => {
+                  // Check if character is already on a mission
+                  const isOnMission = gameEngineRef.current?.isCharacterOnMission(character.id) || false;
+                  
+                  return (
+                    <div 
+                      key={character.id}
+                      className={`mission-character-option 
+                        ${selectedMissionCharacters.includes(character.id) ? 'selected' : ''}
+                        ${mission.requiredStrengths.includes(character.gameStrength) ? 'strength-match' : ''}
+                        ${isOnMission ? 'on-mission-disabled' : ''}
+                      `}
+                      onClick={() => !isOnMission && handleToggleMissionCharacter(character.id)}
+                      title={isOnMission ? "This character is already on a mission" : ""}
+                    >
+                      <div className="character-portrait">
+                        <div className="placeholder-image" style={{ backgroundColor: getColorForCharacter(character.characterClass) }}></div>
+                      </div>
+                      <div className="character-details">
+                        <h4>{character.name}</h4>
+                        <p>Lv. {character.level} {formatClassName(character.characterClass)}</p>
+                        <p><strong>Specialty:</strong> {formatGameStrength(character.gameStrength)}</p>
+                        {isOnMission && (
+                          <p className="mission-status">On Mission</p>
+                        )}
+                      </div>
+                      <div className="character-selection-indicator">
+                        {selectedMissionCharacters.includes(character.id) ? '✓' : 
+                         isOnMission ? '🚀' : ''}
+                      </div>
                     </div>
-                    <div className="character-details">
-                      <h4>{character.name}</h4>
-                      <p>Lv. {character.level} {formatClassName(character.characterClass)}</p>
-                      <p><strong>Specialty:</strong> {formatGameStrength(character.gameStrength)}</p>
-                    </div>
-                    <div className="character-selection-indicator">
-                      {selectedMissionCharacters.includes(character.id) ? '✓' : ''}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <p className="mission-selection-note">
                 <strong>Note:</strong> Characters on missions cannot train skills until they return.
@@ -437,6 +505,142 @@ const GameContainer: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
+    );
+  };
+
+  // Render the active missions section in the missions tab
+  const renderActiveMissions = () => {
+    if (!gameState) return null;
+    
+    // Check if there are any active missions
+    if (gameState.currentMissions.length === 0) {
+      return (
+        <div className="no-active-missions">
+          <p>You don't have any active missions at the moment.</p>
+          <p>Select a mission from the available missions to get started!</p>
+        </div>
+      );
+    }
+    
+    // Render each active mission
+    return (
+      <div className="active-missions">
+        <h3>Active Missions</h3>
+        <div className="active-missions-grid">
+          {gameState.currentMissions.map((mission, index) => {
+            const assignedCharacters = mission.assignedCharacters.map(id => 
+              gameState.characters.find(c => c.id === id)
+            ).filter(Boolean);
+            
+            return (
+              <div key={mission.id} className="active-mission-card">
+                <div className="mission-header">
+                  <h4>{mission.name}</h4>
+                  <div className="mission-progress-display">
+                    <div className="progress-bar">
+                      <div 
+                        className="progress" 
+                        style={{width: `${mission.completionProgress}%`}}
+                      ></div>
+                    </div>
+                    <span>{Math.floor(mission.completionProgress)}%</span>
+                  </div>
+                </div>
+                
+                <p className="mission-description">{mission.description}</p>
+                
+                <div className="mission-details-grid">
+                  <div className="mission-team">
+                    <h5>Team:</h5>
+                    <div className="mission-team-members">
+                      {assignedCharacters.map((char: any) => (
+                        <div key={char.id} className="team-member">
+                          <div className="placeholder-image" style={{ 
+                            backgroundColor: getColorForCharacter(char.characterClass),
+                            width: '20px',
+                            height: '20px'
+                          }}></div>
+                          <span>{char.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="mission-rewards">
+                    <h5>Rewards:</h5>
+                    <div className="rewards-list">
+                      {mission.rewards.gold > 0 && <div className="reward-item"><span className="reward-value">{mission.rewards.gold}</span> Gold</div>}
+                      {mission.rewards.dataPoints > 0 && <div className="reward-item"><span className="reward-value">{mission.rewards.dataPoints}</span> Data</div>}
+                      {mission.rewards.teamMorale > 0 && <div className="reward-item"><span className="reward-value">+{mission.rewards.teamMorale}</span> Morale</div>}
+                      {mission.rewards.adaptationTokens > 0 && <div className="reward-item"><span className="reward-value">{mission.rewards.adaptationTokens}</span> Tokens</div>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  // Update available missions display
+  const renderAvailableMissions = () => {
+    if (!gameState) return null;
+    
+    if (gameState.missions.length === 0) {
+      return <p>No missions available at the moment. Check back later!</p>;
+    }
+    
+    return (
+      <div className="mission-grid">
+        {gameState.missions.map(mission => (
+          <div key={mission.id} className="mission-card">
+            <div className="mission-card-header">
+              <h4>{mission.name}</h4>
+              <div className="mission-difficulty">
+                <strong>Difficulty:</strong> {mission.difficulty.toFixed(1)}
+              </div>
+            </div>
+            <p className="mission-description">{mission.description}</p>
+            
+            <div className="mission-card-details">
+              <div className="mission-requirements">
+                <h5>Required Strengths:</h5>
+                <div className="required-strengths">
+                  {mission.requiredStrengths.map((strength, index) => (
+                    <div key={index} className="strength-tag">
+                      {formatGameStrength(strength)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="mission-rewards-compact">
+                <h5>Rewards:</h5>
+                <div className="rewards-grid">
+                  {mission.rewards.gold > 0 && <div className="reward-item"><span className="reward-value">{mission.rewards.gold}</span> Gold</div>}
+                  {mission.rewards.dataPoints > 0 && <div className="reward-item"><span className="reward-value">{mission.rewards.dataPoints}</span> Data</div>}
+                  {mission.rewards.teamMorale > 0 && <div className="reward-item"><span className="reward-value">+{mission.rewards.teamMorale}</span> Morale</div>}
+                  {mission.rewards.adaptationTokens > 0 && <div className="reward-item"><span className="reward-value">{mission.rewards.adaptationTokens}</span> Tokens</div>}
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              className="begin-mission-button"
+              onClick={() => {
+                // Clear selected characters first
+                setSelectedMissionCharacters([]);
+                // Then set the mission ID
+                setSelectedMissionId(mission.id);
+              }}
+            >
+              Begin Mission
+            </button>
+          </div>
+        ))}
       </div>
     );
   };
@@ -530,23 +734,18 @@ const GameContainer: React.FC = () => {
                   <div className="stat-small"><span>CHA</span> {Math.floor(unlockedCharacter.charisma)}</div>
                 </div>
                 <p className="unlock-character-background">{unlockedCharacter.background}</p>
+                <p className="character-added-notice">This character has been automatically added to your team!</p>
               </div>
             </div>
             <div className="popup-actions">
               <button 
-                className="add-to-team-button"
+                className="close-button-large"
                 onClick={() => {
-                  gameEngineRef.current?.addActiveCharacter(unlockedCharacter.id);
+                  // Character is already automatically added to the team in GameEngine.unlockCharacterInternal
                   closeUnlockedCharacterPopup();
                 }}
               >
-                Add to Team
-              </button>
-              <button 
-                className="view-later-button"
-                onClick={closeUnlockedCharacterPopup}
-              >
-                View Later
+                Continue
               </button>
             </div>
           </div>
@@ -569,18 +768,39 @@ const GameContainer: React.FC = () => {
                     className={`character-tab ${character.id === effectiveSelectedCharId ? 'active' : ''} ${gameEngineRef.current?.isCharacterOnMission(character.id) ? 'on-mission' : ''}`}
                     onClick={() => handleSelectCharacterTab(character.id)}
                   >
-                    <div className="character-tab-name">{character.name}</div>
+                    <div className="character-info-row">
+                      <div className="character-tab-name">{character.name}</div>
+                      <div className="character-level">Lv. {character.level}</div>
+                    </div>
                     <div className="character-tab-specialty">{formatGameStrength(character.gameStrength)}</div>
-                    {character.currentlyTraining && (
-                      <div className="training-indicator" title={`Training ${character.skills.find(s => s.type === character.currentlyTraining)?.name}`}>
-                        🔄
+                    
+                    {/* Character experience progress bar */}
+                    <div className="character-experience">
+                      <div className="progress-bar mini">
+                        <div 
+                          className="progress" 
+                          style={{
+                            width: `${(character.experience / calculateXpForNextLevel(character.level)) * 100}%`
+                          }}
+                        ></div>
                       </div>
-                    )}
-                    {gameEngineRef.current?.isCharacterOnMission(character.id) && (
-                      <div className="mission-indicator" title="On Mission">
-                        🚀
+                      <div className="exp-text">
+                        {Math.floor(character.experience)}/{calculateXpForNextLevel(character.level)} XP
                       </div>
-                    )}
+                    </div>
+                    
+                    <div className="character-indicators">
+                      {character.currentlyTraining && (
+                        <div className="training-indicator" title={`Training ${character.skills.find(s => s.type === character.currentlyTraining)?.name}`}>
+                          🔄
+                        </div>
+                      )}
+                      {gameEngineRef.current?.isCharacterOnMission(character.id) && (
+                        <div className="mission-indicator" title="On Mission">
+                          🚀
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -602,12 +822,6 @@ const GameContainer: React.FC = () => {
                         <div className="stat"><span>INT</span> {Math.floor(selectedCharacter.intelligence)}</div>
                         <div className="stat"><span>CHA</span> {Math.floor(selectedCharacter.charisma)}</div>
                       </div>
-                      <button 
-                        onClick={() => gameEngineRef.current?.removeActiveCharacter(selectedCharacter.id)}
-                        disabled={gameState.activeCharacters.length <= 1}
-                      >
-                        Remove from Team
-                      </button>
                     </div>
                   </div>
                   
@@ -619,28 +833,6 @@ const GameContainer: React.FC = () => {
                   />
                 </div>
               )}
-            </div>
-            
-            <div className="unlocked-characters">
-              <h2>Available Characters</h2>
-              {gameState.characters
-                .filter((character: Character) => 
-                  gameState.unlockedCharacters.includes(character.id) && 
-                  !gameState.activeCharacters.some((c: Character) => c.id === character.id)
-                )
-                .map((character: Character) => (
-                  <div key={character.id} className="character-card">
-                    <h3>{character.name}</h3>
-                    <p>Level: {character.level}</p>
-                    <p>Class: {formatClassName(character.characterClass)}</p>
-                    <p>Specialty: {formatGameStrength(character.gameStrength)}</p>
-                    <button 
-                      onClick={() => gameEngineRef.current?.addActiveCharacter(character.id)}
-                    >
-                      Add to Team
-                    </button>
-                  </div>
-                ))}
             </div>
           </div>
           
@@ -662,25 +854,7 @@ const GameContainer: React.FC = () => {
                 </div>
               </div>
               
-              {gameState.currentMission && (
-                <div className="current-mission-summary">
-                  <h3>Current Mission</h3>
-                  <p>{gameState.currentMission.name}</p>
-                  <div className="progress-bar">
-                    <div 
-                      className="progress" 
-                      style={{width: `${gameState.currentMission.completionProgress}%`}}
-                    ></div>
-                  </div>
-                  <p>Progress: {Math.floor(gameState.currentMission.completionProgress)}%</p>
-                  <button 
-                    onClick={() => setActiveTab(UITab.MISSIONS)}
-                    className="view-details-button"
-                  >
-                    View Details
-                  </button>
-                </div>
-              )}
+              {renderActiveMissions()}
               
               <div className="game-stats">
                 <h3>Game Statistics</h3>
@@ -767,80 +941,19 @@ const GameContainer: React.FC = () => {
 
       {/* Missions Tab */}
       {activeTab === UITab.MISSIONS && (
-        <div className="missions-tab">
-          <div className="missions-overview">
-            <h2>Available Missions</h2>
-            {gameState.missions.length === 0 ? (
-              <p>No missions available yet. Unlock more characters to access missions!</p>
-            ) : (
-              <div className="missions-grid">
-                {gameState.missions.map((mission: Mission) => (
-                  <div key={mission.id} className="mission-card-detailed">
-                    <h3>{mission.name}</h3>
-                    <p>{mission.description}</p>
-                    <div className="mission-details">
-                      <p><strong>Difficulty:</strong> {mission.difficulty.toFixed(1)}</p>
-                      <p><strong>Duration:</strong> ~{Math.floor(mission.duration)} seconds</p>
-                      <div className="mission-required-strengths">
-                        <p><strong>Required Strengths:</strong></p>
-                        <div className="strengths-list">
-                          {mission.requiredStrengths.map((strength, index) => (
-                            <span key={index} className="strength-tag">
-                              {formatGameStrength(strength)}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mission-rewards">
-                      <h4>Rewards:</h4>
-                      <div className="rewards-list">
-                        <div className="reward"><span>Gold:</span> {mission.rewards.gold}</div>
-                        <div className="reward"><span>Data Points:</span> {mission.rewards.dataPoints}</div>
-                        <div className="reward"><span>Team Morale:</span> {mission.rewards.teamMorale}</div>
-                        <div className="reward"><span>Adaptation Tokens:</span> {mission.rewards.adaptationTokens}</div>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => setSelectedMissionId(mission.id)}
-                      disabled={gameState.currentMission !== null}
-                      className="select-characters-button"
-                    >
-                      {gameState.currentMission ? "Mission in Progress" : "Select Characters"}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+        <div className="missions-content">
+          <div className="missions-header">
+            <h2>Missions</h2>
+            <p>Send your team on missions to gain rewards and discover new heroes!</p>
           </div>
           
-          {gameState.currentMission && (
-            <div className="current-mission-detailed">
-              <h2>Current Mission: {gameState.currentMission.name}</h2>
-              <p>{gameState.currentMission.description}</p>
-              <div className="progress-bar">
-                <div 
-                  className="progress" 
-                  style={{width: `${gameState.currentMission.completionProgress}%`}}
-                ></div>
-              </div>
-              <p>Progress: {Math.floor(gameState.currentMission.completionProgress)}%</p>
-              <div className="active-mission-team">
-                <h3>Team on Mission:</h3>
-                <div className="mission-team-members">
-                  {gameState.currentMission.assignedCharacters.map(charId => {
-                    const character = gameState.characters.find(c => c.id === charId);
-                    return character ? (
-                      <div key={character.id} className="team-member-icon">
-                        <div className="member-portrait" style={{ backgroundColor: getColorForCharacter(character.characterClass) }}></div>
-                        <span>{character.name}</span>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Render active missions section */}
+          {renderActiveMissions()}
+          
+          <div className="available-missions">
+            <h3>Available Missions</h3>
+            {renderAvailableMissions()}
+          </div>
         </div>
       )}
     </div>

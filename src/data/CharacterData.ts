@@ -374,6 +374,43 @@ const christianAbilities: Ability[] = [
   }
 ];
 
+// Define base abilities for Andrew
+const andrewAbilities: Ability[] = [
+  {
+    id: "iron_focus",
+    name: "Iron Focus",
+    description: "Passive ability that increases idle resource generation the longer Andrew remains uninterrupted.",
+    cooldown: 0, // Passive ability
+    effect: (game: GameState) => {
+      // Implementation will go here
+    },
+    unlockLevel: 1,
+    icon: "focus"
+  },
+  {
+    id: "lockdown_protocol",
+    name: "Lockdown Protocol",
+    description: "Freezes timers or enemy movements for a few seconds, giving team breathing room.",
+    cooldown: 90,
+    effect: (game: GameState) => {
+      // Implementation will go here
+    },
+    unlockLevel: 3,
+    icon: "lock"
+  },
+  {
+    id: "wardens_presence",
+    name: "Warden's Presence",
+    description: "Team-wide buff that reduces skill cooldowns and stabilizes random elements.",
+    cooldown: 120,
+    effect: (game: GameState) => {
+      // Implementation will go here
+    },
+    unlockLevel: 5,
+    icon: "shield"
+  }
+];
+
 // Define character-specific skills
 const getRyanSkills = (): CharacterSkill[] => [
   {
@@ -825,6 +862,51 @@ const getChristianSkills = (): CharacterSkill[] => [
   }
 ];
 
+const getAndrewSkills = (): CharacterSkill[] => [
+  {
+    type: SkillType.ENDURANCE,
+    name: "Unbreakable Patience",
+    description: "Andrew can endure endless repetitive tasks without losing focus or efficiency.",
+    level: 1,
+    maxLevel: 10,
+    experience: 0,
+    experienceToNextLevel: 100,
+    trainingRate: 0.6,
+    bonuses: {
+      strength: 0.8,
+      resourceGain: 0.15
+    }
+  },
+  {
+    type: SkillType.TACTICS,
+    name: "Routine Mastery",
+    description: "Gains efficiency bonuses when executing repetitive tasks, stacking small benefits over time.",
+    level: 1,
+    maxLevel: 10,
+    experience: 0,
+    experienceToNextLevel: 100,
+    trainingRate: 0.5,
+    bonuses: {
+      intelligence: 0.7,
+      missionSpeed: 0.1
+    }
+  },
+  {
+    type: SkillType.LEADERSHIP,
+    name: "Prison Protocol",
+    description: "Strict discipline and order that keeps the team focused during chaos.",
+    level: 1,
+    maxLevel: 10,
+    experience: 0,
+    experienceToNextLevel: 100,
+    trainingRate: 0.55,
+    bonuses: {
+      charisma: 0.6,
+      abilityEffectiveness: 0.12
+    }
+  }
+];
+
 // Export the character data
 export const characterData: Character[] = [
   {
@@ -1024,6 +1106,26 @@ export const characterData: Character[] = [
     skillPoints: 0,
     upgradeTree: emptyUpgradeTree,
     skills: getChristianSkills(),
+    currentlyTraining: null,
+    pausedTraining: null
+  },
+  {
+    id: "andrew",
+    name: "Andrew",
+    characterClass: CharacterClass.WARDEN,
+    gameStrength: GameStrength.UNBREAKABLE_PATIENCE,
+    level: 1,
+    experience: 0,
+    abilities: andrewAbilities,
+    background: "Andrew is a stoic sentinel—calm, quiet, and always watching. As a prison guard by trade, he's developed a kind of unshakable patience that makes him ideal for long-haul challenges. He doesn't flinch, doesn't fidget, and never loses focus, even when everything is falling apart around him.",
+    portrait: "andrew.png",
+    strength: 7,
+    agility: 4,
+    intelligence: 6,
+    charisma: 5,
+    skillPoints: 0,
+    upgradeTree: emptyUpgradeTree,
+    skills: getAndrewSkills(),
     currentlyTraining: null,
     pausedTraining: null
   }
