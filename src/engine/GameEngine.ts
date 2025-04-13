@@ -553,7 +553,8 @@ export class GameEngine {
           GameStrength.GRINDING, 
           GameStrength.PERSISTENT_TRAINING,
           GameStrength.JACK_OF_ALL_TRADES,
-          GameStrength.ADDICTION
+          GameStrength.ADDICTION,
+          GameStrength.UNBREAKABLE_PATIENCE
         ]
       },
       {
@@ -589,7 +590,8 @@ export class GameEngine {
           GameStrength.PAINFUL_GAMES, 
           GameStrength.PERSISTENT_TRAINING, 
           GameStrength.GRINDING,
-          GameStrength.TEAM_SUPPORT
+          GameStrength.TEAM_SUPPORT,
+          GameStrength.UNBREAKABLE_PATIENCE
         ]
       },
       {
@@ -601,7 +603,8 @@ export class GameEngine {
           GameStrength.SNIPING, 
           GameStrength.FIRST_PERSON_MOVEMENT, 
           GameStrength.JACK_OF_ALL_TRADES,
-          GameStrength.TACTICAL_AREA_CONTROL
+          GameStrength.TACTICAL_AREA_CONTROL,
+          GameStrength.UNBREAKABLE_PATIENCE
         ]
       },
       {
@@ -638,6 +641,17 @@ export class GameEngine {
           GameStrength.SNIPING, 
           GameStrength.FIRST_PERSON_MOVEMENT,
           GameStrength.ADDICTION
+        ]
+      },
+      {
+        name: "Long Surveillance",
+        description: "Monitor a target location for extended periods to gather intelligence.",
+        difficultyMod: 1.2,
+        rewards: { gold: 250, dataPoints: 250, teamMorale: 5, adaptationTokens: 2 },
+        possibleStrengths: [
+          GameStrength.UNBREAKABLE_PATIENCE,
+          GameStrength.SNIPING,
+          GameStrength.PERSISTENT_TRAINING
         ]
       }
     ];
@@ -1238,14 +1252,14 @@ export class GameEngine {
         description: "A simple training mission to test your team's coordination.",
         difficulty: 1,
         rewards: { gold: 150, dataPoints: 75, teamMorale: 5, adaptationTokens: 1 },
-        possibleStrengths: [GameStrength.TEAM_SUPPORT, GameStrength.JACK_OF_ALL_TRADES, GameStrength.PERSISTENT_TRAINING]
+        possibleStrengths: [GameStrength.TEAM_SUPPORT, GameStrength.JACK_OF_ALL_TRADES, GameStrength.PERSISTENT_TRAINING, GameStrength.UNBREAKABLE_PATIENCE]
       },
       {
         name: "Data Collection",
         description: "Gather important information from various sources.",
         difficulty: 1.5,
         rewards: { gold: 100, dataPoints: 200, teamMorale: 3, adaptationTokens: 1 },
-        possibleStrengths: [GameStrength.GRINDING, GameStrength.SNIPING, GameStrength.HIGH_GAME_MODE]
+        possibleStrengths: [GameStrength.GRINDING, GameStrength.SNIPING, GameStrength.HIGH_GAME_MODE, GameStrength.UNBREAKABLE_PATIENCE]
       },
       {
         name: "Strategic Planning",
@@ -1253,6 +1267,13 @@ export class GameEngine {
         difficulty: 2,
         rewards: { gold: 200, dataPoints: 150, teamMorale: 10, adaptationTokens: 2 },
         possibleStrengths: [GameStrength.TACTICAL_AREA_CONTROL, GameStrength.JACK_OF_ALL_TRADES, GameStrength.TEAM_SUPPORT]
+      },
+      {
+        name: "Guard Duty",
+        description: "Keep watch over valuable team assets and guard against threats.",
+        difficulty: 1.3,
+        rewards: { gold: 175, dataPoints: 100, teamMorale: 6, adaptationTokens: 1 },
+        possibleStrengths: [GameStrength.UNBREAKABLE_PATIENCE, GameStrength.PERSISTENT_TRAINING, GameStrength.TEAM_SUPPORT]
       }
     ];
     
