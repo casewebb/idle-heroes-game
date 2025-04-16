@@ -12,7 +12,6 @@ export enum CharacterClass {
   WARDEN = "warden"
 }
 
-// Enum for various skill types that characters can train
 export enum SkillType {
   COMBAT = "combat",
   TACTICS = "tactics",
@@ -50,7 +49,6 @@ export interface Ability {
   icon: string;
 }
 
-// Interface for trainable character skills
 export interface CharacterSkill {
   type: SkillType;
   name: string;
@@ -59,11 +57,9 @@ export interface CharacterSkill {
   maxLevel: number;
   experience: number;
   experienceToNextLevel: number;
-  trainingRate: number; // Rate at which this skill increases per second when training
+  trainingRate: number;
   
-  // Bonuses provided by this skill
   bonuses: {
-    // Each skill can provide bonuses to different aspects of the character
     strength?: number;
     agility?: number;
     intelligence?: number;
@@ -85,20 +81,17 @@ export interface Character {
   background: string;
   portrait: string;
   
-  // Stats
   strength: number;
   agility: number;
   intelligence: number;
   charisma: number;
   
-  // Progression metrics
   skillPoints: number;
   upgradeTree: SkillNode[];
   
-  // Trainable skills
   skills: CharacterSkill[];
-  currentlyTraining: SkillType | null; // The skill currently being trained
-  pausedTraining: SkillType | null; // Track paused training when character is on a mission
+  currentlyTraining: SkillType | null;
+  pausedTraining: SkillType | null;
 }
 
 export interface SkillNode {
@@ -138,5 +131,5 @@ export interface Mission {
   rewards: Resources;
   requiredStrengths: GameStrength[];
   completionProgress: number;
-  assignedCharacters: string[]; // Track characters assigned to this mission
+  assignedCharacters: string[];
 } 

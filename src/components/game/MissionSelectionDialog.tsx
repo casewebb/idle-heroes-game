@@ -21,9 +21,7 @@ const MissionSelectionDialog: React.FC<MissionSelectionDialogProps> = ({
   onCancel,
   isCharacterOnMission
 }) => {
-  // Check if requirements are met with current selection
   const areMissionRequirementsMet = (): boolean => {
-    // Check if the selected characters cover all required strengths
     return mission.requiredStrengths.every(requiredStrength => 
       selectedCharacterIds.some(charId => {
         const char = availableCharacters.find(c => c.id === charId);
@@ -63,7 +61,6 @@ const MissionSelectionDialog: React.FC<MissionSelectionDialogProps> = ({
             <p><strong>Select characters to send on this mission:</strong></p>
             <div className="mission-character-selection">
               {availableCharacters.map(character => {
-                // Check if character is already on a mission
                 const isOnMission = isCharacterOnMission(character.id);
                 
                 return (

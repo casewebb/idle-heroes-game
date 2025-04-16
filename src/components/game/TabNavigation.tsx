@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Enum for UI tabs
 export enum UITab {
   GAME = "game",
   SHOP = "shop",

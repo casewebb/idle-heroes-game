@@ -37,21 +37,16 @@ const SkillTrainingPanel: React.FC<SkillTrainingPanelProps> = ({
       previousTimeRef.current = time;
     }
     
-    // Calculate time delta in seconds
     const deltaTime = (time - previousTimeRef.current) / 1000;
     previousTimeRef.current = time;
     
-    // Only update if character is actively training and not on mission
     if (character.currentlyTraining && !isOnMission) {
       setRealTimeSkills(prevSkills => {
         return prevSkills.map(skill => {
-          // Only update the skill that's currently being trained
           if (skill.type === character.currentlyTraining && skill.level < skill.maxLevel) {
-            // Calculate real-time experience gain based on training rate
             const expGain = skill.trainingRate * deltaTime;
             const newExp = skill.realTimeExperience + expGain;
             
-            // Ensure we don't exceed the next level threshold
             const cappedExp = Math.min(newExp, skill.experienceToNextLevel);
             
             return {
@@ -67,7 +62,6 @@ const SkillTrainingPanel: React.FC<SkillTrainingPanelProps> = ({
     requestRef.current = requestAnimationFrame(animateSkills);
   };
   
-  // Set up and clean up animation frame
   useEffect(() => {
     requestRef.current = requestAnimationFrame(animateSkills);
     return () => {
@@ -77,7 +71,6 @@ const SkillTrainingPanel: React.FC<SkillTrainingPanelProps> = ({
     };
   }, [character.currentlyTraining, isOnMission]);
   
-  // Get a real-time skill by type
   const getRealTimeSkill = (skillType: SkillType): RealTimeSkill | undefined => {
     return realTimeSkills.find(s => s.type === skillType);
   };
@@ -104,7 +97,6 @@ const SkillTrainingPanel: React.FC<SkillTrainingPanelProps> = ({
       <div className="skills-list">
         <h4>Available Skills</h4>
         {character.skills.map(skill => {
-          // Get real-time skill data if available
           const realTimeSkill = getRealTimeSkill(skill.type);
           const displayExperience = realTimeSkill ? realTimeSkill.realTimeExperience : skill.experience;
           

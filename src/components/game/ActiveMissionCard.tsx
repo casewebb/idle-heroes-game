@@ -11,7 +11,6 @@ const ActiveMissionCard: React.FC<ActiveMissionCardProps> = ({
   mission,
   characters
 }) => {
-  // Find the assigned characters from the full character array
   const assignedCharacters = mission.assignedCharacters
     .map(id => characters.find(c => c.id === id))
     .filter(Boolean) as Character[];

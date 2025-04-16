@@ -4,7 +4,6 @@ import { GameState, Character, Mission, SkillType } from '../types/Character';
 import { characterData } from '../data/CharacterData';
 import './GameContainer.css';
 
-// Imported components
 import CharacterSelectScreen from './game/CharacterSelectScreen';
 import ResourceBar from './game/ResourceBar';
 import TabNavigation, { UITab } from './game/TabNavigation';
@@ -14,7 +13,6 @@ import MissionsTab from './game/MissionsTab';
 import CharacterUnlockPopup from './game/CharacterUnlockPopup';
 import MissionSelectionDialog from './game/MissionSelectionDialog';
 
-// Imported utils
 import { checkForSavedGame } from './game/utils';
 
 const GameContainer: React.FC = () => {
@@ -33,16 +31,13 @@ const GameContainer: React.FC = () => {
   const saveIndicatorTimeoutRef = useRef<number | null>(null);
 
   const handleCharacterSelect = (characterId: string) => {
-    // Add debugging
     console.log("Selected character with ID:", characterId);
     
-    // Initialize the game engine with the selected character
     gameEngineRef.current = new GameEngine(characterId);
     setHasSelectedCharacter(true);
   };
 
   const handleContinueGame = () => {
-    // Continue with saved game data
     gameEngineRef.current = new GameEngine();
     setHasSelectedCharacter(true);
   };
@@ -52,10 +47,8 @@ const GameContainer: React.FC = () => {
       if (gameEngineRef.current) {
         gameEngineRef.current.resetGame();
         
-        // Clear saved game from localStorage directly
         localStorage.removeItem('idle_heroes_game_state');
         
-        // Update the UI state without reloading
         setHasSelectedCharacter(false);
         setHasSavedGame(false);
         setGameState(null);
@@ -66,7 +59,6 @@ const GameContainer: React.FC = () => {
     }
   };
 
-  // Add debug function to clear localStorage
   const handleClearStorage = () => {
     localStorage.removeItem('idle_heroes_game_state');
     console.log("Cleared localStorage");
@@ -93,21 +85,16 @@ const GameContainer: React.FC = () => {
     }
   };
 
-  // Manual save handler
   const handleManualSave = () => {
     if (gameEngineRef.current) {
-      // Force a save
       gameEngineRef.current.saveGameState();
       
-      // Show save indicator
       setShowSaveIndicator(true);
       
-      // Clear previous timeout if it exists
       if (saveIndicatorTimeoutRef.current !== null) {
         window.clearTimeout(saveIndicatorTimeoutRef.current);
       }
       
-      // Hide the indicator after 2 seconds
       saveIndicatorTimeoutRef.current = window.setTimeout(() => {
         setShowSaveIndicator(false);
         saveIndicatorTimeoutRef.current = null;
@@ -122,30 +109,24 @@ const GameContainer: React.FC = () => {
     gameEngine.update();
     const newGameState = gameEngine.getGameState();
     
-    // Check if a character was just unlocked
     const unlockedChar = gameEngine.getLastUnlockedCharacter();
     if (unlockedChar) {
       setUnlockedCharacter(unlockedChar);
-      // Clear the last unlocked character in the engine
       gameEngine.clearLastUnlockedCharacter();
     }
     
     setGameState(newGameState);
     
-    // Update last save time display
     setLastSaveTime(gameEngine.getTimeSinceLastSave());
     
     requestRef.current = requestAnimationFrame(gameLoop);
   };
 
-  // Function to close the character unlock popup
   const closeUnlockedCharacterPopup = () => {
     setUnlockedCharacter(null);
   };
 
-  // Function to handle character selection for missions
   const handleToggleMissionCharacter = (characterId: string) => {
-    // Check if character is already on a mission
     if (gameEngineRef.current?.isCharacterOnMission(characterId)) {
       return; // Don't allow selecting character already on a mission
     }
@@ -159,11 +140,9 @@ const GameContainer: React.FC = () => {
     });
   };
 
-  // Function to check if all mission requirements are met
   const areMissionRequirementsMet = (mission: Mission, characterIds: string[]): boolean => {
     if (!gameState) return false;
     
-    // Check if the selected characters cover all required strengths
     return mission.requiredStrengths.every(requiredStrength => 
       characterIds.some(charId => {
         const char = gameState.characters.find(c => c.id === charId);
@@ -172,47 +151,37 @@ const GameContainer: React.FC = () => {
     );
   };
 
-  // Function to start a mission with selected characters
   const handleStartMission = () => {
     if (!gameEngineRef.current || !selectedMissionId || selectedMissionCharacters.length === 0) return;
     
     const mission = gameState?.missions.find(m => m.id === selectedMissionId);
     if (!mission) return;
     
-    // Check if requirements are met
     if (!areMissionRequirementsMet(mission, selectedMissionCharacters)) {
       alert("Your team doesn't have all the required strengths for this mission!");
       return;
     }
     
-    // Start the mission with selected characters
     gameEngineRef.current.startMission(selectedMissionId, selectedMissionCharacters);
     
-    // Reset selection state
     setSelectedMissionId(null);
     setSelectedMissionCharacters([]);
   };
 
-  // Function to cancel mission selection
   const handleCancelMission = () => {
     setSelectedMissionId(null);
     setSelectedMissionCharacters([]);
   };
 
-  // Function to handle beginning a mission (opens mission selection dialog)
   const handleBeginMission = (missionId: string) => {
-    // Clear selected characters first
     setSelectedMissionCharacters([]);
-    // Then set the mission ID
     setSelectedMissionId(missionId);
   };
 
-  // Function to check if a character is on a mission
   const isCharacterOnMission = (characterId: string): boolean => {
     return !!gameEngineRef.current?.isCharacterOnMission(characterId);
   };
 
-  // Function to handle character purchase in the shop
   const handlePurchaseCharacter = (characterId: string, goldPrice: number, dataPrice: number) => {
     if (gameEngineRef.current) {
       gameEngineRef.current.purchaseCharacter(characterId, goldPrice, dataPrice);
@@ -220,36 +189,29 @@ const GameContainer: React.FC = () => {
   };
 
   useEffect(() => {
-    // Only start the game loop if character has been selected
     if (hasSelectedCharacter && gameEngineRef.current) {
       requestRef.current = requestAnimationFrame(gameLoop);
     }
     
     return () => {
-      // Cleanup when unmounting
       if (requestRef.current) {
         cancelAnimationFrame(requestRef.current);
       }
       
-      // Clean up the game engine (which will also save the game one last time)
       if (gameEngineRef.current) {
         gameEngineRef.current.cleanup();
       }
       
-      // Clean up save indicator timeout
       if (saveIndicatorTimeoutRef.current !== null) {
         window.clearTimeout(saveIndicatorTimeoutRef.current);
       }
     };
   }, [hasSelectedCharacter]);
   
-  // Check for saved game data when component mounts
   useEffect(() => {
-    // Update hasSavedGame state based on localStorage
     setHasSavedGame(checkForSavedGame());
   }, []);
 
-  // Character selection screen
   if (!hasSelectedCharacter) {
     return (
       <CharacterSelectScreen

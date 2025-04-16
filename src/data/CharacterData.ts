@@ -1,10 +1,7 @@
 import { Character, CharacterClass, GameStrength, Ability, GameState, SkillNode, SkillType, CharacterSkill } from '../types/Character';
 
-// Create empty upgrade trees for each character
-// These will be populated later with proper skill trees
 const emptyUpgradeTree: SkillNode[] = [];
 
-// Define base abilities for Ryan
 const ryanAbilities: Ability[] = [
   {
     id: "quick_calculations",
@@ -41,7 +38,6 @@ const ryanAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Daniel
 const danielAbilities: Ability[] = [
   {
     id: "clever_misdirection",
@@ -78,7 +74,6 @@ const danielAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Josiah
 const josiahAbilities: Ability[] = [
   {
     id: "algorithmic_insight",
@@ -115,7 +110,6 @@ const josiahAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Case
 const caseAbilities: Ability[] = [
   {
     id: "supportive_aim",
@@ -152,7 +146,6 @@ const caseAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Ian
 const ianAbilities: Ability[] = [
   {
     id: "box_fortress",
@@ -189,7 +182,6 @@ const ianAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Ben
 const benAbilities: Ability[] = [
   {
     id: "motivational_hype",
@@ -226,7 +218,6 @@ const benAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Rodney
 const rodneyAbilities: Ability[] = [
   {
     id: "motorcycle_mayhem",
@@ -263,7 +254,6 @@ const rodneyAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Vinny
 const vinnyAbilities: Ability[] = [
   {
     id: "rapid_heal",
@@ -300,7 +290,6 @@ const vinnyAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Kyle
 const kyleAbilities: Ability[] = [
   {
     id: "clip_and_snip",
@@ -337,7 +326,6 @@ const kyleAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Christian
 const christianAbilities: Ability[] = [
   {
     id: "fearless_charge",
@@ -374,7 +362,6 @@ const christianAbilities: Ability[] = [
   }
 ];
 
-// Define base abilities for Andrew
 const andrewAbilities: Ability[] = [
   {
     id: "iron_focus",
@@ -411,7 +398,6 @@ const andrewAbilities: Ability[] = [
   }
 ];
 
-// Define character-specific skills
 const getRyanSkills = (): CharacterSkill[] => [
   {
     type: SkillType.INTELLIGENCE,
@@ -907,7 +893,6 @@ const getAndrewSkills = (): CharacterSkill[] => [
   }
 ];
 
-// Export the character data
 export const characterData: Character[] = [
   {
     id: "ryan",

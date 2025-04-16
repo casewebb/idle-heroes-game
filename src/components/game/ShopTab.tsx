@@ -11,7 +11,6 @@ const ShopTab: React.FC<ShopTabProps> = ({
   gameState,
   onPurchaseCharacter
 }) => {
-  // Filter to only show characters that haven't been unlocked yet
   const availableCharacters = gameState.characters.filter(
     (character: Character) => !gameState.unlockedCharacters.includes(character.id)
   );
@@ -27,7 +26,6 @@ const ShopTab: React.FC<ShopTabProps> = ({
           const goldPrice = Math.floor(100 * (character.strength + character.agility));
           const dataPrice = Math.floor(50 * (character.intelligence + character.charisma));
           
-          // Check if player can afford this character
           const canAfford = gameState.resources.gold >= goldPrice && 
                           gameState.resources.dataPoints >= dataPrice;
           
