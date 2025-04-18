@@ -32,6 +32,30 @@ const MissionSelectionDialog: React.FC<MissionSelectionDialogProps> = ({
 
   const requirementsMet = areMissionRequirementsMet();
 
+  // Function to select or deselect all characters not on a mission
+  const selectAllAvailableCharacters = () => {
+    const allSelected = availableCharacters.every(character => 
+      isCharacterOnMission(character.id) || selectedCharacterIds.includes(character.id)
+    );
+
+    availableCharacters.forEach(character => {
+      if (!isCharacterOnMission(character.id)) {
+        // Toggle selection based on whether all are currently selected
+        if (allSelected) {
+          // Deselect if all are selected
+          if (selectedCharacterIds.includes(character.id)) {
+            onToggleCharacter(character.id);
+          }
+        } else {
+          // Select if not already selected
+          if (!selectedCharacterIds.includes(character.id)) {
+            onToggleCharacter(character.id);
+          }
+        }
+      }
+    });
+  };
+
   return (
     <div className="popup-overlay">
       <div className="mission-selection-popup">
@@ -59,6 +83,9 @@ const MissionSelectionDialog: React.FC<MissionSelectionDialogProps> = ({
               </div>
             </div>
             <p><strong>Select characters to send on this mission:</strong></p>
+            <button onClick={selectAllAvailableCharacters} className="select-all-button small-button">
+              Select/Deselect All
+            </button>
             <div className="mission-character-selection">
               {availableCharacters.map(character => {
                 const isOnMission = isCharacterOnMission(character.id);

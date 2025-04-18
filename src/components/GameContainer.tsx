@@ -77,6 +77,7 @@ const GameContainer: React.FC = () => {
     
     try {
       const success = gameEngineRef.current.setTrainingSkill(characterId, skillType);
+      console.log('Successfully set training skill for ', characterId, skillType, success);
       if (!success) {
         console.warn(`Failed to set training skill ${skillType} for character ${characterId}`);
       }

@@ -139,8 +139,10 @@ export class GameEngine {
   
   public saveGameState(): void {
     try {
+      console.log('Saving game state');
       localStorage.setItem(GAME_STATE_KEY, JSON.stringify(this.gameState));
       this.lastSaveTime = Date.now();
+      console.log('Game state saved');
     } catch (error) {
       console.error('Error saving game state:', error);
     }
@@ -973,6 +975,7 @@ export class GameEngine {
   
   public setTrainingSkill(characterId: string, skillType: SkillType | null): boolean {
     const success = this.setTrainingSkillInternal(characterId, skillType);
+    console.log('Successfully set training skill for ', characterId, skillType, success);
     if (success) this.saveGameState();
     return success;
   }
