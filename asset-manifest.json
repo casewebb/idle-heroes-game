@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/idle-heroes-game/static/css/main.c83efec1.css",
-    "main.js": "/idle-heroes-game/static/js/main.6bca4d4d.js",
+    "main.css": "/idle-heroes-game/static/css/main.f08af62f.css",
+    "main.js": "/idle-heroes-game/static/js/main.e5955422.js",
     "index.html": "/idle-heroes-game/index.html",
-    "main.c83efec1.css.map": "/idle-heroes-game/static/css/main.c83efec1.css.map",
-    "main.6bca4d4d.js.map": "/idle-heroes-game/static/js/main.6bca4d4d.js.map"
+    "main.f08af62f.css.map": "/idle-heroes-game/static/css/main.f08af62f.css.map",
+    "main.e5955422.js.map": "/idle-heroes-game/static/js/main.e5955422.js.map"
   },
   "entrypoints": [
-    "static/css/main.c83efec1.css",
-    "static/js/main.6bca4d4d.js"
+    "static/css/main.f08af62f.css",
+    "static/js/main.e5955422.js"
   ]
 }
