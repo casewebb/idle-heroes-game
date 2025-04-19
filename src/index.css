@@ -11,3 +11,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 } 
+
+* {
+  cursor: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"%3E%3Ccircle cx="25" cy="25" r="20" stroke="white" stroke-width="2" fill="none" /%3E%3Cline x1="25" y1="0" x2="25" y2="50" stroke="white" stroke-width="2" /%3E%3Cline x1="0" y1="25" x2="50" y2="25" stroke="white" stroke-width="2" /%3E%3C/svg%3E') 25 25, crosshair;
+}
+
+/* Red crosshair cursor on clickable elements */
+button, a, .clickable, .tab, .App button, .App a, .character-tab, .character-tab * {
+  cursor: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"%3E%3Ccircle cx="25" cy="25" r="20" stroke="red" stroke-width="2" fill="none" /%3E%3Cline x1="25" y1="0" x2="25" y2="50" stroke="red" stroke-width="2" /%3E%3Cline x1="0" y1="25" x2="50" y2="25" stroke="red" stroke-width="2" /%3E%3C/svg%3E') 25 25, crosshair;
+}
