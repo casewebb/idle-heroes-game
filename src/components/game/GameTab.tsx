@@ -69,9 +69,9 @@ const GameTab: React.FC<GameTabProps> = ({
             <div className="active-missions">
               <h3>Active Missions</h3>
               <div className="active-missions-grid">
-                {gameState.currentMissions.map((mission: Mission) => (
+                {gameState.currentMissions.map((mission: Mission, index: number) => (
                   <ActiveMissionCard 
-                    key={mission.id}
+                    key={`game_tab_${mission.id}`}
                     mission={mission}
                     characters={gameState.characters}
                   />

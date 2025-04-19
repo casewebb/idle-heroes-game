@@ -5,11 +5,13 @@ import { getColorForCharacter } from './utils';
 interface ActiveMissionCardProps {
   mission: Mission;
   characters: Character[];
+  missionIndex?: number;
 }
 
 const ActiveMissionCard: React.FC<ActiveMissionCardProps> = ({
   mission,
-  characters
+  characters,
+  missionIndex
 }) => {
   const assignedCharacters = mission.assignedCharacters
     .map(id => characters.find(c => c.id === id))

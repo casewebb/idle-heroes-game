@@ -92,6 +92,7 @@ export interface Character {
   skills: CharacterSkill[];
   currentlyTraining: SkillType | null;
   pausedTraining: SkillType | null;
+  originalTraining: SkillType | null;
 }
 
 export interface SkillNode {
@@ -113,6 +114,8 @@ export interface GameState {
   unlockedCharacters: string[];
   gameTime: number;
   teamSynergy: number;
+  autoMission: boolean;
+  lastUpdateTime?: number;
 }
 
 export interface Resources {

@@ -103,7 +103,8 @@ export class GameEngine {
       currentMissions: [],
       unlockedCharacters: [startingCharacter.id],
       gameTime: 0,
-      teamSynergy: 0
+      teamSynergy: 0,
+      autoMission: false
     };
   }
   
@@ -115,12 +116,12 @@ export class GameEngine {
     if (deltaTime < 0) {
       console.warn(`Negative deltaTime detected: ${deltaTime}. Setting to 0.1`);
       deltaTime = 0.1;
-    } else if (deltaTime > 60) {
-      console.warn(`Very large deltaTime detected: ${deltaTime}. Capping at 60 seconds.`);
-      deltaTime = 60;
     }
     
     this.gameState.gameTime += deltaTime;
+    
+    // Update the last update time for offline progression tracking
+    this.gameState.lastUpdateTime = Date.now() / 1000;
     
     if (!this.gameState.currentMissions) {
       this.gameState.currentMissions = [];
@@ -199,6 +200,11 @@ export class GameEngine {
           if (!hasSkill) {
             character.currentlyTraining = null;
           }
+        }
+        
+        // Initialize originalTraining field if not present
+        if (character.originalTraining === undefined) {
+          character.originalTraining = character.currentlyTraining;
         }
         
         character.skills.forEach((skill, index) => {
@@ -421,13 +427,43 @@ export class GameEngine {
     
     const assignedCharacters = [...this.gameState.currentMissions[index].assignedCharacters];
     
+    // Generate a new mission to replace the completed one
     this.generateNewMission();
     
+    // Remove the completed mission
     this.gameState.currentMissions.splice(index, 1);
     
-    this.resumeTrainingForCharacters(assignedCharacters);
+    // Handle auto-mission feature
+    if (this.gameState.autoMission && this.gameState.missions.length > 0) {
+      const allCharactersUnlocked = this.canEnableAutoMission();
+      if (allCharactersUnlocked) {
+        this.startAutoMission(assignedCharacters);
+      } else {
+        this.resumeTrainingForCharacters(assignedCharacters);
+      }
+    } else {
+      // Resume training for characters that were on the mission
+      this.resumeTrainingForCharacters(assignedCharacters);
+    }
     
     this.saveGameState();
+  }
+  
+  private startAutoMission(characterIds: string[]): boolean {
+    if (this.gameState.missions.length === 0) return false;
+    
+    // Pick the first available mission
+    const missionId = this.gameState.missions[0].id;
+    
+    // Try to start the mission with the same characters
+    const success = this.startMissionInternal(missionId, characterIds);
+    
+    if (!success) {
+      // If failed, resume training for the characters
+      this.resumeTrainingForCharacters(characterIds);
+    }
+    
+    return success;
   }
   
   public getLastUnlockedCharacter(): Character | null {
@@ -725,12 +761,26 @@ export class GameEngine {
       const activeCharacter = this.gameState.activeCharacters.find(c => c.id === charId);
       
       if (character) {
+        // Store the original training state if this is the first mission for this character
+        // or if auto-missions are enabled but originalTraining is not set
+        if ((character.originalTraining === undefined || character.originalTraining === null) &&
+            (this.gameState.autoMission || !character.pausedTraining)) {
+          character.originalTraining = character.currentlyTraining;
+          console.log(`Stored original training for ${character.name}: ${character.originalTraining || 'none'}`);
+        }
+        
         character.pausedTraining = character.currentlyTraining;
         character.currentlyTraining = null;
         console.log(`Paused training for ${character.name}, stored: ${character.pausedTraining || 'none'}`);
       }
       
       if (activeCharacter) {
+        // Also store for active character if it's the first mission or auto-missions enabled
+        if ((activeCharacter.originalTraining === undefined || activeCharacter.originalTraining === null) &&
+            (this.gameState.autoMission || !activeCharacter.pausedTraining)) {
+          activeCharacter.originalTraining = activeCharacter.currentlyTraining;
+        }
+        
         activeCharacter.pausedTraining = activeCharacter.currentlyTraining;
         activeCharacter.currentlyTraining = null;
       }
@@ -1021,32 +1071,153 @@ export class GameEngine {
   }
   
   public isCharacterOnMission(characterId: string): boolean {
-    if (!this.gameState.currentMissions) {
-      this.gameState.currentMissions = [];
-      return false;
-    }
+    if (!this.gameState.currentMissions) return false;
     
     return this.gameState.currentMissions.some(mission => 
       mission.assignedCharacters.includes(characterId)
     );
   }
   
-  private resumeTrainingForCharacters(characterIds: string[]): void {
+  public cancelMission(missionIndex: number): boolean {
+    try {
+      // Check if the mission index is valid
+      if (missionIndex < 0 || !this.gameState.currentMissions || 
+          missionIndex >= this.gameState.currentMissions.length) {
+        console.error(`Invalid mission index: ${missionIndex}`);
+        return false;
+      }
+      
+      // Get the mission and its assigned characters
+      const mission = this.gameState.currentMissions[missionIndex];
+      const assignedCharacters = [...mission.assignedCharacters];
+      
+      // Create a copy of the mission with reset progress and no assigned characters
+      const missionToAdd = {
+        ...mission,
+        completionProgress: 0,
+        assignedCharacters: []
+      };
+      
+      // Remove from current missions
+      this.gameState.currentMissions.splice(missionIndex, 1);
+      
+      // Add to available missions
+      this.gameState.missions.push(missionToAdd);
+      
+      // Resume training for characters
+      this.resumeTrainingForCharacters(assignedCharacters);
+      
+      // Save changes
+      this.saveGameState();
+      
+      console.log(`Successfully canceled mission: ${mission.name}`);
+      return true;
+    } catch (error) {
+      console.error("Error canceling mission:", error);
+      return false;
+    }
+  }
+  
+  public toggleAutoMission(): boolean {
+    // Auto-mission can only be enabled if all characters are unlocked
+    const allCharactersUnlocked = this.gameState.characters.every(character => 
+      this.gameState.unlockedCharacters.includes(character.id)
+    );
+    
+    if (!allCharactersUnlocked && !this.gameState.autoMission) {
+      console.log("Auto-mission feature requires all characters to be unlocked");
+      return false;
+    }
+    
+    // Toggle the auto-mission state
+    this.gameState.autoMission = !this.gameState.autoMission;
+    console.log(`Auto-mission ${this.gameState.autoMission ? 'enabled' : 'disabled'}`);
+    
+    // If disabling auto-mission, clear all original training states
+    if (!this.gameState.autoMission) {
+      this.gameState.characters.forEach(character => {
+        character.originalTraining = null;
+      });
+      
+      // Also clear for active characters
+      this.gameState.activeCharacters.forEach(character => {
+        character.originalTraining = null;
+      });
+    } 
+    // If enabling auto-mission, save current training states as original if not on mission
+    else {
+      this.gameState.characters.forEach(character => {
+        if (!this.isCharacterOnMission(character.id) && character.originalTraining === null) {
+          character.originalTraining = character.currentlyTraining;
+        }
+      });
+      
+      this.gameState.activeCharacters.forEach(character => {
+        if (!this.isCharacterOnMission(character.id) && character.originalTraining === null) {
+          character.originalTraining = character.currentlyTraining;
+        }
+      });
+    }
+    
+    this.saveGameState();
+    return true;
+  }
+  
+  public updateMissions(currentMissions: Mission[], availableMissions: Mission[]): void {
+    this.gameState.currentMissions = currentMissions;
+    this.gameState.missions = availableMissions;
+  }
+  
+  public canEnableAutoMission(): boolean {
+    return this.gameState.characters.every(character => 
+      this.gameState.unlockedCharacters.includes(character.id)
+    );
+  }
+  
+  public resumeTrainingForCharacters(characterIds: string[]): void {
     console.log("Resuming training for characters:", characterIds);
+    const autoMissionsEnabled = this.gameState.autoMission;
     
     for (const charId of characterIds) {
       const character = this.gameState.characters.find(c => c.id === charId);
       const activeCharacter = this.gameState.activeCharacters.find(c => c.id === charId);
       
-      if (character && character.pausedTraining) {
-        character.currentlyTraining = character.pausedTraining;
+      if (character) {
+        // Prioritize original training state regardless of auto-mission status
+        if (character.originalTraining !== null && character.originalTraining !== undefined) {
+          character.currentlyTraining = character.originalTraining;
+          console.log(`Restored original training for ${character.name}: ${character.currentlyTraining || 'none'}`);
+        } else if (character.pausedTraining) {
+          character.currentlyTraining = character.pausedTraining;
+          console.log(`Resumed training for ${character.name}: ${character.currentlyTraining || 'none'}`);
+        }
         character.pausedTraining = null;
-        console.log(`Resumed training for ${character.name}: ${character.currentlyTraining}`);
       }
       
-      if (activeCharacter && activeCharacter.pausedTraining) {
-        activeCharacter.currentlyTraining = activeCharacter.pausedTraining;
+      if (activeCharacter) {
+        // Prioritize original training state regardless of auto-mission status
+        if (activeCharacter.originalTraining !== null && activeCharacter.originalTraining !== undefined) {
+          activeCharacter.currentlyTraining = activeCharacter.originalTraining;
+        } else if (activeCharacter.pausedTraining) {
+          activeCharacter.currentlyTraining = activeCharacter.pausedTraining;
+        }
         activeCharacter.pausedTraining = null;
+      }
+    }
+    
+    // Only clear original training when explicitly disabling auto-missions
+    if (!autoMissionsEnabled) {
+      for (const charId of characterIds) {
+        const character = this.gameState.characters.find(c => c.id === charId);
+        const activeCharacter = this.gameState.activeCharacters.find(c => c.id === charId);
+        
+        if (character) {
+          character.originalTraining = null;
+        }
+        
+        if (activeCharacter) {
+          activeCharacter.originalTraining = null;
+        }
       }
     }
   }
@@ -1136,5 +1307,9 @@ export class GameEngine {
         assignedCharacters: []
       });
     });
+  }
+  
+  public updateLastUpdateTime(timestamp: number): void {
+    this.gameState.lastUpdateTime = timestamp;
   }
 } 

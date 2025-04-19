@@ -1139,7 +1139,7 @@ button:disabled {
   background: none;
   border: none;
   color: #f0f0f0;
-  font-size: 1.6rem;
+  font-size: 1 rem;
   
   padding: 0;
   line-height: 1;
@@ -1744,4 +1744,171 @@ button:disabled {
   padding: 12px;
   font-size: 1.1rem;
   margin-top: 10px;
+}
+
+/* Auto-mission toggle */
+.auto-mission-toggle {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #2a3142;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.toggle-container input[type="checkbox"] {
+  margin-right: 10px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.toggle-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f0f0f0;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  background-color: #3a4151;
+  color: #f0f0f0;
+  padding: 10px;
+  border-radius: 6px;
+  width: 220px;
+  top: -40px;
+  left: 40px;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+}
+
+.toggle-container:hover .tooltip {
+  display: block;
+}
+
+.auto-mission-active {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: rgba(97, 218, 251, 0.1);
+  border: 1px solid #61dafb;
+  border-radius: 6px;
+}
+
+.auto-mission-indicator {
+  font-weight: bold;
+  color: #61dafb;
+  display: flex;
+  align-items: center;
+}
+
+.auto-mission-indicator::before {
+  content: "⟳";
+  margin-right: 6px;
+  font-size: 1.2rem;
+  animation: rotate 2s linear infinite;
+}
+
+.auto-mission-note {
+  font-size: 0.85rem;
+  margin-top: 5px;
+  color: #f0f0f0;
+}
+
+.mission-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.cancel-mission-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.cancel-mission-button:hover {
+  background-color: #d32f2f;
+}
+
+/* Offline Progress Notification */
+.offline-gains-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #1e2235;
+  border: 2px solid #61dafb;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.offline-gains-notification h3 {
+  color: #61dafb;
+  margin-top: 0;
+  font-size: 1.4rem;
+}
+
+.offline-gains-notification p {
+  margin-bottom: 15px;
+  color: #f0f0f0;
+}
+
+.offline-gains-notification ul {
+  text-align: left;
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+
+.offline-gains-notification li {
+  margin-bottom: 8px;
+  color: #f0f0f0;
+}
+
+.offline-gains-notification .close-button {
+  background-color: #61dafb;
+  color: #1e2235;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.offline-gains-notification .close-button:hover {
+  background-color: #4fa8c7;
+}
+
+/* Auto-missions notification detail */
+.auto-missions-detail {
+  color: #61dafb;
+  font-style: italic;
+  margin-left: 15px;
+  position: relative;
+}
+
+.auto-missions-detail::before {
+  content: "⟳";
+  margin-right: 6px;
+  font-size: 1.1rem;
+  animation: rotate 2s linear infinite;
+  display: inline-block;
 } 

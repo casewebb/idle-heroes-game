@@ -912,7 +912,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getRyanSkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "daniel",
@@ -932,7 +933,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getDanielSkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "josiah",
@@ -952,7 +954,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getJosiahSkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "case",
@@ -972,7 +975,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getCaseSkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "ian",
@@ -992,7 +996,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getIanSkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "ben",
@@ -1012,7 +1017,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getBenSkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "rodney",
@@ -1032,7 +1038,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getRodneySkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "vinny",
@@ -1052,7 +1059,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getVinnySkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "kyle",
@@ -1072,7 +1080,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getKyleSkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "christian",
@@ -1092,7 +1101,8 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getChristianSkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   },
   {
     id: "andrew",
@@ -1112,6 +1122,7 @@ export const characterData: Character[] = [
     upgradeTree: emptyUpgradeTree,
     skills: getAndrewSkills(),
     currentlyTraining: null,
-    pausedTraining: null
+    pausedTraining: null,
+    originalTraining: null
   }
 ]; 
